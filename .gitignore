@@ -6,3 +6,6 @@ GRTAGS
 *.DS_Store
 /cryptocurrency-course-materials
 target/
+.classpath
+.project
+.settings
