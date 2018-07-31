@@ -28,16 +28,10 @@ public class BlockChain {
 
                 x.add(genesisBlock);
                 chain.put(0, x);
-                Transaction[] txs = new Transaction[1];
 
-                txs[0] = genesisBlock.getCoinbase();
-                UTXOPool pool = new UTXOPool();
+                utxoPools.put(genesisBlock.getHash(),
+                                addCoinbaseToPool(genesisBlock, new UTXOPool()));
 
-                TxHandler txHandler = new TxHandler(pool);
-                txHandler.handleTxs(txs);
-                utxoPools.put(genesisBlock.getHash(), txHandler.getUTXOPool());
-
-                // System.out.println(txHandler.getUTXOPool().getAllUTXO());
 
                 txPool = new TransactionPool();
         }
@@ -80,29 +74,29 @@ public class BlockChain {
                         return false;
 
                 UTXOPool pool = utxoPools.get(prevHash);
-                if (pool == null) 
+                if (pool == null)
                         return false;
-                
+
 
                 boolean found = false;
-                // System.out.println("height is  " + height);
+
                 while (height >= minHeight) {
-                        // System.out.println("looking at " + height);
+                        for (Block b : chain.get(height)) {
+                                found = Arrays.equals(b.getHash(), prevHash);
+                                if (found)
+                                        break;
+                        }
                         if (found)
                                 break;
-                        for (Block b : chain.get(height)) {
-                                if (Arrays.equals(b.getHash(), prevHash)) {
-                                        // System.out.println("found at " + height);
-                                        found = true;
-                                        break;
-                                }
-                        }
+
                         height--;
                 }
 
                 if (!found)
                         return false;
-                int newheight = chain.lastKey() + 1;
+
+                int newheight = height + 1;
+
 
                 TxHandler handler = new TxHandler(pool);
 
@@ -112,24 +106,17 @@ public class BlockChain {
                 Transaction[] txss = txs.toArray(new Transaction[txs.size()]);
                 Transaction[] accepted_txs = handler.handleTxs(txss);
 
-
                 if (txss.length != accepted_txs.length)
-                    return false;
+                        return false;
 
-                
+
                 ArrayList<Block> x = chain.get(newheight);
                 if (x == null)
                         x = new ArrayList<Block>();
 
-                UTXOPool upool = handler.getUTXOPool();
-                
-                Transaction coinbase = block.getCoinbase();
-                Transaction.Output out = coinbase.getOutput(0);
-                UTXO u = new UTXO(coinbase.getHash(), 0);
-                upool.addUTXO(u, out);
-                
-                utxoPools.put(block.getHash(), upool);
-                
+
+                utxoPools.put(block.getHash(), addCoinbaseToPool(block, handler.getUTXOPool()));
+
                 x.add(block);
                 chain.put(newheight, x);
 
@@ -140,5 +127,13 @@ public class BlockChain {
         /** Add a transaction to the transaction pool */
         public void addTransaction(Transaction tx) {
                 txPool.addTransaction(tx);
+        }
+
+        public static UTXOPool addCoinbaseToPool(Block b, UTXOPool pool) {
+                Transaction coinbase = b.getCoinbase();
+                Transaction.Output out = coinbase.getOutput(0);
+                UTXO u = new UTXO(coinbase.getHash(), 0);
+                pool.addUTXO(u, out);
+                return pool;
         }
 }

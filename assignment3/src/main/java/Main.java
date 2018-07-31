@@ -9,15 +9,8 @@ import java.security.InvalidKeyException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchP
-import java.security.InvalidKeyException;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
-import java.security.Signature;
-import java.security.SignatureException;ivateKey;
 import java.security.Signature;
 import java.security.SignatureException;
 
@@ -160,7 +153,7 @@ public class Main {
                 Block prevBlock = genesisBlock;
 
                 for (int i = 0; i < 29; i++) {
-
+                    System.out.println(i);
 
                         spendCoinbaseTx = new Tx();
                         spendCoinbaseTx.addInput(prevBlock.getCoinbase().getHash(), 0);
