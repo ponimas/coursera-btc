@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.TreeMap;
 
 // Block Chain should maintain only limited block nodes to satisfy the functions
@@ -15,8 +16,8 @@ public class BlockChain {
     
     // Yeah
     TreeMap<Integer, ArrayList<Block>> chain;
-
-    TxHandler txHandler;
+    HashMap<Hash, UTXOPool> utxoPools;
+    
     TransactionPool txPool;
 
     public BlockChain(Block genesisBlock) {
@@ -25,10 +26,13 @@ public class BlockChain {
         ArrayList<Block> x = new ArrayList<Block>();
         x.add(genesisBlock);
         chain.put(0, x);
+        Transaction[] txs = new Transaction[1]();
 
+        System.out.println(chain);
         UTXOPool pool = new UTXOPool();
         txHandler = new TxHandler(pool);
-
+        txHandler.handleTxs(txs);
+        
         txPool = new TransactionPool();
     }
 
@@ -40,7 +44,7 @@ public class BlockChain {
 
     /** Get the UTXOPool for mining a new block on top of max height block */
     public UTXOPool getMaxHeightUTXOPool() {
-        return txHandler.getUTXOPool();
+        return utxPools.get(getMaxHeightBlock());
     }
 
     /** Get the transaction pool to mine a new block */
