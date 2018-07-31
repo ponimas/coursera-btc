@@ -15,14 +15,14 @@ public class TxHandler {
     }
 
     public UTXOPool getUTXOPool() {
-        return new UTXOPool(pool);
+        return pool;
     };
     
     public boolean isValidTx(Transaction tx) {
         Set<UTXO> setUTXO = new HashSet<UTXO>();
         double inputSum = 0;
         double outputSum = 0;
-        
+        if (tx.isCoinbase()) return true;
         for (int i = 0; i < tx.numInputs(); i++) {
             Transaction.Input in = tx.getInput(i);
             byte[] data = tx.getRawDataToSign(i);
